@@ -58,11 +58,13 @@ impl ObjectRef {
         Self::Some { kind: kind.into(), data }
     }
 
-    /// English comment: Downcast to Arc<T> reference; practical for policies.
-    pub fn arc<T: Any>(&self) -> Option<&Arc<T>> {
+    pub fn arc<T: Any + Send + Sync>(&self) -> Option<Arc<T>> {
         match self {
             ObjectRef::None => None,
-            ObjectRef::Some { data, .. } => data.downcast_ref::<Arc<T>>(),
+            ObjectRef::Some { data, .. } => {
+                let cloned: Arc<dyn Any + Send + Sync> = Arc::clone(data);
+                Arc::downcast::<T>(cloned).ok()
+            }
         }
     }
 }
