@@ -1,0 +1,8 @@
+[package]
+name = "tetthys-cake"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "tetthys_cake"
+path = "src/lib.rs"
