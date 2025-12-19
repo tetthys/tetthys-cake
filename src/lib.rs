@@ -4,8 +4,10 @@ pub mod pred;
 pub mod combinators;
 pub mod rule;
 
-pub use engine::{Decision, DecisionKind, Engine};
-pub use model::{Action, Actor, Context, ObjectRef};
+pub mod integration;
+
+pub use engine::{Decision, DecisionKind, TraceEvent, TraceResult, Engine};
+pub use model::{Action, Actor, Context, ObjectRef, IntoObjectRef};
 pub use pred::{Pred, PredFn};
 pub use combinators::Combinators;
 pub use rule::{Rule, RuleSet, RuleSetMode};
@@ -68,35 +70,30 @@ macro_rules! s_or {
         $crate::Combinators::s_or(vec![ $( $p ),* ])
     };
 }
-
 #[macro_export]
 macro_rules! s_and {
     ( $( $p:expr ),* $(,)? ) => {
         $crate::Combinators::s_and(vec![ $( $p ),* ])
     };
 }
-
 #[macro_export]
 macro_rules! s_not {
     ($p:expr) => {
         $crate::Combinators::s_not($p)
     };
 }
-
 #[macro_export]
 macro_rules! d_or {
     ( $( $p:expr ),* $(,)? ) => {
         $crate::Combinators::d_or(vec![ $( $p ),* ])
     };
 }
-
 #[macro_export]
 macro_rules! d_and {
     ( $( $p:expr ),* $(,)? ) => {
         $crate::Combinators::d_and(vec![ $( $p ),* ])
     };
 }
-
 #[macro_export]
 macro_rules! d_not {
     ($p:expr) => {

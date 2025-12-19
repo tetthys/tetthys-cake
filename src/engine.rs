@@ -8,10 +8,31 @@ pub enum DecisionKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TraceResult {
+    Match,
+    NoMatch,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TraceEvent {
+    pub rule: String,
+    pub result: TraceResult,
+}
+
+impl TraceEvent {
+    pub fn to_string(&self) -> String {
+        match self.result {
+            TraceResult::Match => format!("[{}] match", self.rule),
+            TraceResult::NoMatch => format!("[{}] no-match", self.rule),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Decision {
     pub kind: DecisionKind,
     pub selected_rule: Option<String>,
-    pub trace: Vec<String>,
+    pub trace: Vec<TraceEvent>,
 }
 
 impl Decision {
@@ -22,9 +43,13 @@ impl Decision {
     pub fn is_deny(&self) -> bool {
         self.kind == DecisionKind::Deny
     }
+
+    pub fn trace_strings(&self) -> Vec<String> {
+        self.trace.iter().map(|e| e.to_string()).collect()
+    }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Engine;
 
 impl Engine {
@@ -41,7 +66,7 @@ impl Engine {
         ruleset: &RuleSet,
     ) -> Decision {
         if ruleset.rules.is_empty() {
-            // English comment: deny-by-default (both modes).
+            // deny-by-default
             return Decision {
                 kind: DecisionKind::Deny,
                 selected_rule: None,
@@ -55,12 +80,13 @@ impl Engine {
 
                 for r in &ruleset.rules {
                     if r.matches(u, a, o, c) {
-                        trace.push(format!("[{}] match", r.name));
+                        trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::Match });
                         continue;
                     }
 
-                    trace.push(format!("[{}] no-match", r.name));
-                    // English comment: short-circuit deny on first failure.
+                    trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::NoMatch });
+
+                    // short-circuit deny on first failure
                     return Decision {
                         kind: DecisionKind::Deny,
                         selected_rule: None,
@@ -80,8 +106,9 @@ impl Engine {
 
                 for r in &ruleset.rules {
                     if r.matches(u, a, o, c) {
-                        trace.push(format!("[{}] match", r.name));
-                        // English comment: short-circuit permit on first match.
+                        trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::Match });
+
+                        // short-circuit permit on first match
                         return Decision {
                             kind: DecisionKind::Permit,
                             selected_rule: Some(r.name.clone()),
@@ -89,7 +116,7 @@ impl Engine {
                         };
                     }
 
-                    trace.push(format!("[{}] no-match", r.name));
+                    trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::NoMatch });
                 }
 
                 Decision {

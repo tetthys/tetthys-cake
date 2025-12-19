@@ -1,17 +1,12 @@
 use std::sync::{Arc, Mutex};
 
-use tetthys_cake::{
-    pred_d, pred_s,
-    s_and, s_not, s_or,
-    d_and, d_not, d_or,
-    Action, Actor, Context, ObjectRef,
-};
+use tetthys_cake::{d_and, d_not, d_or, pred_d, pred_s, s_and, s_not, s_or, Action, Actor, Context, ObjectRef};
 
 #[test]
 fn s_or_identity_false_and_short_circuit() {
     let u = Actor::new("u-1", vec!["user".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let s0 = s_or!();
@@ -44,7 +39,7 @@ fn s_or_identity_false_and_short_circuit() {
 fn s_and_identity_true_and_short_circuit() {
     let u = Actor::new("u-1", vec!["user".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let s0 = s_and!();
@@ -77,7 +72,7 @@ fn s_and_identity_true_and_short_circuit() {
 fn s_not_negates() {
     let u = Actor::new("u-1", vec!["admin".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let s_true = pred_s!(|_u| true);
@@ -91,7 +86,7 @@ fn s_not_negates() {
 fn d_or_identity_false_and_short_circuit() {
     let u = Actor::new("u-1", vec!["user".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let d0 = d_or!();
@@ -124,7 +119,7 @@ fn d_or_identity_false_and_short_circuit() {
 fn d_and_identity_true_and_short_circuit() {
     let u = Actor::new("u-1", vec!["user".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let d0 = d_and!();
@@ -157,7 +152,7 @@ fn d_and_identity_true_and_short_circuit() {
 fn d_not_negates() {
     let u = Actor::new("u-1", vec!["user".to_string()]);
     let a = Action::new("thing.do");
-    let o = ObjectRef::new("Thing", ());
+    let o = ObjectRef::none();
     let c = Context::default();
 
     let d_true = pred_d!(|_u, _a, _o| true);

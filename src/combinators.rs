@@ -6,7 +6,7 @@ pub struct Combinators;
 impl Combinators {
     /// English comment: OR identity is false; short-circuits on first true.
     pub fn s_or(preds: Vec<Pred>) -> Pred {
-        Pred::s(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
+        Pred::s(move |u, a, o, c| {
             for p in &preds {
                 if p.call(u, a, o, c) {
                     return true;
@@ -18,7 +18,7 @@ impl Combinators {
 
     /// English comment: AND identity is true; short-circuits on first false.
     pub fn s_and(preds: Vec<Pred>) -> Pred {
-        Pred::s(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
+        Pred::s(move |u, a, o, c| {
             for p in &preds {
                 if !p.call(u, a, o, c) {
                     return false;
@@ -29,14 +29,11 @@ impl Combinators {
     }
 
     pub fn s_not(p: Pred) -> Pred {
-        Pred::s(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
-            !p.call(u, a, o, c)
-        })
+        Pred::s(move |u, a, o, c| !p.call(u, a, o, c))
     }
 
-    /// English comment: Domain combinators mirror subject combinators for API parity.
     pub fn d_or(preds: Vec<Pred>) -> Pred {
-        Pred::d(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
+        Pred::d(move |u, a, o, c| {
             for p in &preds {
                 if p.call(u, a, o, c) {
                     return true;
@@ -47,7 +44,7 @@ impl Combinators {
     }
 
     pub fn d_and(preds: Vec<Pred>) -> Pred {
-        Pred::d(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
+        Pred::d(move |u, a, o, c| {
             for p in &preds {
                 if !p.call(u, a, o, c) {
                     return false;
@@ -58,8 +55,6 @@ impl Combinators {
     }
 
     pub fn d_not(p: Pred) -> Pred {
-        Pred::d(move |u: &Actor, a: &Action, o: &ObjectRef, c: &Context| -> bool {
-            !p.call(u, a, o, c)
-        })
+        Pred::d(move |u, a, o, c| !p.call(u, a, o, c))
     }
 }

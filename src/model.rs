@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Actor {
@@ -9,10 +10,7 @@ pub struct Actor {
 
 impl Actor {
     pub fn new(id: impl Into<String>, roles: impl Into<Vec<String>>) -> Self {
-        Self {
-            id: id.into(),
-            roles: roles.into(),
-        }
+        Self { id: id.into(), roles: roles.into() }
     }
 
     pub fn has_role(&self, role: &str) -> bool {
@@ -31,23 +29,73 @@ impl Action {
     }
 }
 
-#[derive(Debug)]
-pub struct ObjectRef {
-    pub kind: String,
-    pub data: Box<dyn Any + Send + Sync>,
+#[derive(Debug, Clone)]
+pub enum ObjectRef {
+    None,
+    Some {
+        kind: String,
+        data: Arc<dyn Any + Send + Sync>,
+    },
 }
 
 impl ObjectRef {
-    pub fn new<T: Any + Send + Sync>(kind: impl Into<String>, data: T) -> Self {
-        Self {
-            kind: kind.into(),
-            data: Box::new(data),
+    pub fn none() -> Self {
+        Self::None
+    }
+
+    pub fn is_none(&self) -> bool {
+        matches!(self, ObjectRef::None)
+    }
+
+    pub fn kind(&self) -> Option<&str> {
+        match self {
+            ObjectRef::None => None,
+            ObjectRef::Some { kind, .. } => Some(kind.as_str()),
         }
     }
 
-    /// English comment: Downcast helper for domain predicates.
-    pub fn downcast_ref<T: Any>(&self) -> Option<&T> {
-        self.data.downcast_ref::<T>()
+    pub fn new_arc<T: Any + Send + Sync>(kind: impl Into<String>, data: Arc<T>) -> Self {
+        Self::Some { kind: kind.into(), data }
+    }
+
+    /// English comment: Downcast to Arc<T> reference; practical for policies.
+    pub fn arc<T: Any>(&self) -> Option<&Arc<T>> {
+        match self {
+            ObjectRef::None => None,
+            ObjectRef::Some { data, .. } => data.downcast_ref::<Arc<T>>(),
+        }
+    }
+}
+
+pub trait IntoObjectRef {
+    fn into_object_ref(self) -> ObjectRef;
+}
+
+impl IntoObjectRef for ObjectRef {
+    fn into_object_ref(self) -> ObjectRef {
+        self
+    }
+}
+
+/// English comment: Unit means "no object".
+impl IntoObjectRef for () {
+    fn into_object_ref(self) -> ObjectRef {
+        ObjectRef::none()
+    }
+}
+
+impl<T: Any + Send + Sync> IntoObjectRef for Arc<T> {
+    fn into_object_ref(self) -> ObjectRef {
+        ObjectRef::new_arc(std::any::type_name::<T>(), self)
+    }
+}
+
+impl<T: Any + Send + Sync> IntoObjectRef for Option<Arc<T>> {
+    fn into_object_ref(self) -> ObjectRef {
+        match self {
+            None => ObjectRef::none(),
+            Some(v) => ObjectRef::new_arc(std::any::type_name::<T>(), v),
+        }
     }
 }
 

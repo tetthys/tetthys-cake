@@ -10,7 +10,6 @@ pub struct Pred {
 }
 
 impl Pred {
-    /// English comment: Subject predicate builder (4-arg only).
     pub fn s<F>(f: F) -> Self
     where
         F: Fn(&Actor, &Action, &ObjectRef, &Context) -> bool + Send + Sync + 'static,
@@ -18,7 +17,6 @@ impl Pred {
         Self { f: Arc::new(f) }
     }
 
-    /// English comment: Domain predicate builder (4-arg only).
     pub fn d<F>(f: F) -> Self
     where
         F: Fn(&Actor, &Action, &ObjectRef, &Context) -> bool + Send + Sync + 'static,
