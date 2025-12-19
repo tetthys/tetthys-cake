@@ -4,6 +4,8 @@ pub mod registry;
 pub mod layer;
 pub mod error;
 
+pub mod leptos;
+
 pub use actor::{ActorResolver, DefaultActorResolver};
 pub use policy::{PolicyDecl, ObjectRequirement, norm_method, norm_resource};
 pub use registry::{Cake, CakeState, CakeConfig};
