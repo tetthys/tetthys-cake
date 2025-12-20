@@ -1,3 +1,4 @@
+// rule.rs
 use crate::model::{Action, Actor, Context, ObjectRef};
 use crate::pred::Pred;
 
