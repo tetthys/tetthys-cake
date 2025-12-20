@@ -3,7 +3,7 @@ name = "tetthys-cake"
 version = "0.2.0"
 edition = "2021"
 
-description = "cake for rust"
+description = "Cake for rust"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/tetthys/tetthys-cake"
 
