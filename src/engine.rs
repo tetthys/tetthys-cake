@@ -1,14 +1,15 @@
-// engine.rs
+// src/engine.rs
 use crate::model::{Action, Actor, Context, ObjectRef};
 use crate::rule::{RuleSet, RuleSetMode};
+use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecisionKind {
     Permit,
     Deny,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TraceResult {
     Match,
     NoMatch,
@@ -20,11 +21,11 @@ pub struct TraceEvent {
     pub result: TraceResult,
 }
 
-impl TraceEvent {
-    pub fn to_string(&self) -> String {
+impl fmt::Display for TraceEvent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.result {
-            TraceResult::Match => format!("[{}] match", self.rule),
-            TraceResult::NoMatch => format!("[{}] no-match", self.rule),
+            TraceResult::Match => write!(f, "[{}] match", self.rule),
+            TraceResult::NoMatch => write!(f, "[{}] no-match", self.rule),
         }
     }
 }
@@ -67,7 +68,7 @@ impl Engine {
         ruleset: &RuleSet,
     ) -> Decision {
         if ruleset.rules.is_empty() {
-            // deny-by-default
+            // English comment: deny-by-default when no rules exist.
             return Decision {
                 kind: DecisionKind::Deny,
                 selected_rule: None,
@@ -77,17 +78,23 @@ impl Engine {
 
         match ruleset.mode {
             RuleSetMode::AllMustMatch => {
-                let mut trace = vec![];
+                let mut trace = Vec::new();
 
                 for r in &ruleset.rules {
                     if r.matches(u, a, o, c) {
-                        trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::Match });
+                        trace.push(TraceEvent {
+                            rule: r.name.clone(),
+                            result: TraceResult::Match,
+                        });
                         continue;
                     }
 
-                    trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::NoMatch });
+                    trace.push(TraceEvent {
+                        rule: r.name.clone(),
+                        result: TraceResult::NoMatch,
+                    });
 
-                    // short-circuit deny on first failure
+                    // English comment: short-circuit deny on first failure.
                     return Decision {
                         kind: DecisionKind::Deny,
                         selected_rule: None,
@@ -103,13 +110,16 @@ impl Engine {
             }
 
             RuleSetMode::AnyMayMatch => {
-                let mut trace = vec![];
+                let mut trace = Vec::new();
 
                 for r in &ruleset.rules {
                     if r.matches(u, a, o, c) {
-                        trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::Match });
+                        trace.push(TraceEvent {
+                            rule: r.name.clone(),
+                            result: TraceResult::Match,
+                        });
 
-                        // short-circuit permit on first match
+                        // English comment: short-circuit permit on first match.
                         return Decision {
                             kind: DecisionKind::Permit,
                             selected_rule: Some(r.name.clone()),
@@ -117,7 +127,10 @@ impl Engine {
                         };
                     }
 
-                    trace.push(TraceEvent { rule: r.name.clone(), result: TraceResult::NoMatch });
+                    trace.push(TraceEvent {
+                        rule: r.name.clone(),
+                        result: TraceResult::NoMatch,
+                    });
                 }
 
                 Decision {

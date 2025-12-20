@@ -1,27 +1,27 @@
-// lib.rs
+// src/lib.rs
+pub mod combinators;
 pub mod engine;
 pub mod model;
 pub mod pred;
-pub mod combinators;
 pub mod rule;
 
-pub use engine::{Decision, DecisionKind, TraceEvent, TraceResult, Engine};
-pub use model::{Action, Actor, Context, ObjectRef, IntoObjectRef};
+pub use combinators::*;
+pub use engine::{Decision, DecisionKind, Engine, TraceEvent, TraceResult};
+pub use model::{Action, Actor, Context, IntoObjectRef, ObjectRef};
 pub use pred::{Pred, PredFn};
-pub use combinators::Combinators;
 pub use rule::{Rule, RuleSet, RuleSetMode};
 
 /// English comment: Build subject predicate with move-capture and arity adaptation.
 #[macro_export]
 macro_rules! pred_s {
     (|$u:ident| $body:expr) => {
-        $crate::Pred::s(move |$u, _a, _o, _c| $body)
+        $crate::Pred::new(move |$u, _a, _o, _c| $body)
     };
     (|$u:ident, $a:ident, $o:ident| $body:expr) => {
-        $crate::Pred::s(move |$u, $a, $o, _c| $body)
+        $crate::Pred::new(move |$u, $a, $o, _c| $body)
     };
     (|$u:ident, $a:ident, $o:ident, $c:ident| $body:expr) => {
-        $crate::Pred::s(move |$u, $a, $o, $c| $body)
+        $crate::Pred::new(move |$u, $a, $o, $c| $body)
     };
 }
 
@@ -29,13 +29,13 @@ macro_rules! pred_s {
 #[macro_export]
 macro_rules! pred_d {
     (|$u:ident| $body:expr) => {
-        $crate::Pred::d(move |$u, _a, _o, _c| $body)
+        $crate::Pred::new(move |$u, _a, _o, _c| $body)
     };
     (|$u:ident, $a:ident, $o:ident| $body:expr) => {
-        $crate::Pred::d(move |$u, $a, $o, _c| $body)
+        $crate::Pred::new(move |$u, $a, $o, _c| $body)
     };
     (|$u:ident, $a:ident, $o:ident, $c:ident| $body:expr) => {
-        $crate::Pred::d(move |$u, $a, $o, $c| $body)
+        $crate::Pred::new(move |$u, $a, $o, $c| $body)
     };
 }
 
@@ -66,36 +66,36 @@ macro_rules! rules_any {
 #[macro_export]
 macro_rules! s_or {
     ( $( $p:expr ),* $(,)? ) => {
-        $crate::Combinators::s_or(vec![ $( $p ),* ])
+        $crate::combinators::s_or(vec![ $( $p ),* ])
     };
 }
 #[macro_export]
 macro_rules! s_and {
     ( $( $p:expr ),* $(,)? ) => {
-        $crate::Combinators::s_and(vec![ $( $p ),* ])
+        $crate::combinators::s_and(vec![ $( $p ),* ])
     };
 }
 #[macro_export]
 macro_rules! s_not {
     ($p:expr) => {
-        $crate::Combinators::s_not($p)
+        $crate::combinators::s_not($p)
     };
 }
 #[macro_export]
 macro_rules! d_or {
     ( $( $p:expr ),* $(,)? ) => {
-        $crate::Combinators::d_or(vec![ $( $p ),* ])
+        $crate::combinators::d_or(vec![ $( $p ),* ])
     };
 }
 #[macro_export]
 macro_rules! d_and {
     ( $( $p:expr ),* $(,)? ) => {
-        $crate::Combinators::d_and(vec![ $( $p ),* ])
+        $crate::combinators::d_and(vec![ $( $p ),* ])
     };
 }
 #[macro_export]
 macro_rules! d_not {
     ($p:expr) => {
-        $crate::Combinators::d_not($p)
+        $crate::combinators::d_not($p)
     };
 }

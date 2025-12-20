@@ -1,4 +1,4 @@
-// rule.rs
+// src/rule.rs
 use crate::model::{Action, Actor, Context, ObjectRef};
 use crate::pred::Pred;
 
@@ -11,7 +11,11 @@ pub struct Rule {
 
 impl Rule {
     pub fn new(name: impl Into<String>, s: Pred, d: Pred) -> Self {
-        Self { name: name.into(), s, d }
+        Self {
+            name: name.into(),
+            s,
+            d,
+        }
     }
 
     /// English comment: Rule matches only if both S and D return true.
@@ -34,10 +38,16 @@ pub struct RuleSet {
 
 impl RuleSet {
     pub fn all_of(rules: Vec<Rule>) -> Self {
-        Self { mode: RuleSetMode::AllMustMatch, rules }
+        Self {
+            mode: RuleSetMode::AllMustMatch,
+            rules,
+        }
     }
 
     pub fn any_of(rules: Vec<Rule>) -> Self {
-        Self { mode: RuleSetMode::AnyMayMatch, rules }
+        Self {
+            mode: RuleSetMode::AnyMayMatch,
+            rules,
+        }
     }
 }

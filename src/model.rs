@@ -1,4 +1,4 @@
-// model.rs
+// src/model.rs
 use std::any::Any;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -11,7 +11,10 @@ pub struct Actor {
 
 impl Actor {
     pub fn new(id: impl Into<String>, roles: impl Into<Vec<String>>) -> Self {
-        Self { id: id.into(), roles: roles.into() }
+        Self {
+            id: id.into(),
+            roles: roles.into(),
+        }
     }
 
     pub fn has_role(&self, role: &str) -> bool {
@@ -34,6 +37,7 @@ impl Action {
 pub enum ObjectRef {
     None,
     Some {
+        /// English comment: Human-readable tag for diagnostics/logging (optional semantic label).
         kind: String,
         data: Arc<dyn Any + Send + Sync>,
     },
@@ -56,16 +60,17 @@ impl ObjectRef {
     }
 
     pub fn new_arc<T: Any + Send + Sync>(kind: impl Into<String>, data: Arc<T>) -> Self {
-        Self::Some { kind: kind.into(), data }
+        Self::Some {
+            kind: kind.into(),
+            data,
+        }
     }
 
+    /// English comment: Downcast the stored Arc to a concrete type.
     pub fn arc<T: Any + Send + Sync>(&self) -> Option<Arc<T>> {
         match self {
             ObjectRef::None => None,
-            ObjectRef::Some { data, .. } => {
-                let cloned: Arc<dyn Any + Send + Sync> = Arc::clone(data);
-                Arc::downcast::<T>(cloned).ok()
-            }
+            ObjectRef::Some { data, .. } => Arc::downcast::<T>(Arc::clone(data)).ok(),
         }
     }
 }
