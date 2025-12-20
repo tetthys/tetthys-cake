@@ -4,8 +4,6 @@ pub mod pred;
 pub mod combinators;
 pub mod rule;
 
-pub mod integration;
-
 pub use engine::{Decision, DecisionKind, TraceEvent, TraceResult, Engine};
 pub use model::{Action, Actor, Context, ObjectRef, IntoObjectRef};
 pub use pred::{Pred, PredFn};
